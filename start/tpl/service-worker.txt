@@ -1,0 +1,80 @@
+var dataCache = 'swDataConn-1.0.0';
+var shellCache = 'swShellConn-1.0.0';
+var filesToCache = [];
+var filesToCacheAfter = [];
+
+self.addEventListener('install', function (e) {
+    console.log('SW Install');
+    e.waitUntil(
+        caches.open(shellCache).then(function (cache) {
+            console.log('SW SHELL Install');
+            return cache.addAll(filesToCache);
+        })
+    );
+    caches.open(dataCache).then(function (cache) {
+        console.log('SW DATA Install');
+        cache.addAll(filesToCacheAfter);
+    });
+});
+
+self.addEventListener('activate', function (e) {
+    console.log('SW Activate');
+    e.waitUntil(
+        caches.keys().then(function (keyList) {
+            return Promise.all(keyList.map(function (key) {
+                if (key !== shellCache && key !== dataCache) {
+                    console.log('SW Removing old cache', key);
+                    return caches.delete(key);
+                }
+            }));
+        })
+    );
+    return self.clients.claim();
+});
+
+self.addEventListener('fetch', function (e) {
+    console.log('SW Fetch', e.request.url);
+
+    let patt = new RegExp(/\.(((css|js)\?v=)|mst|png|jpg|ico|gif|jpeg|svg|ttf)/);
+    let viewPatt = new RegExp(/view\/.+/);
+    let pagePatt = new RegExp(/(view|dobra)\/.+/);
+    if (patt.test(e.request.url)) {
+        //SHELL GET CACHE OR ONLINE
+        e.respondWith(
+            caches.match(e.request).then(function (response) {
+                return response || fetch(e.request);
+            })
+        );
+    } else {
+        //DATA - CHECK FOR NEW CONTENT OR GET THE CACHE
+        e.respondWith(
+            caches.open(dataCache).then(function (cache) {
+                return cache.match(e.request).then(function (response) {
+
+                    //update cache
+                    var fetchPromise = fetch(e.request).then(function (networkResponse) {
+                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' && response)
+                            cache.put(e.request, networkResponse.clone());
+
+                        return networkResponse;
+
+                    }).catch(function (error) {
+                        if(error.toString() === "TypeError: Failed to fetch" && !response) {
+                            if(pagePatt.test(e.request.url)) {
+                                return cache.match("request/get/view/" + (viewPatt.test(e.request.url) ? "network" : "blank")).then(function (response) {
+                                    return response;
+                                });
+                            } else {
+                                return cache.match("network").then(function (response) {
+                                    return response;
+                                });
+                            }
+                        }
+                    });
+
+                    return response || fetchPromise;
+                })
+            })
+        );
+    }
+});

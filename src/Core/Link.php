@@ -34,7 +34,6 @@ class Link
             $this->param['title'] = $this->prepareTitle($this->param['title'], $file);
 
         $this->getParamCore();
-        $this->createMinFilesVendor();
         $this->param["vendor"] = VENDOR;
         $this->param["url"] = $file . (!empty($var) ? "/{$var}" : "");
         $this->param['loged'] = !empty($_SESSION['userlogin']);
@@ -67,29 +66,13 @@ class Link
         return $this->param;
     }
 
-    private function createMinFilesVendor()
-    {
-        foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
-            foreach (Helper::listFolder(PATH_HOME . VENDOR . $lib . "/assets") as $file) {
-                $ext = pathinfo($file, PATHINFO_EXTENSION);
-                $name = pathinfo($file, PATHINFO_BASENAME);
-                if (preg_match('/(^\.min)\.[js|css]$/i', $file) && !file_exist(PATH_HOME . VENDOR . $lib . "/assets/{$name}.min.{$ext}")) {
-                    if (preg_match('/\.js$/i', $file))
-                        $minifier = new Minify\JS(file_get_content(PATH_HOME . VENDOR . $lib . "/assets/{$file}"));
-                    else
-                        $minifier = new Minify\CSS(file_get_content(PATH_HOME . VENDOR . $lib . "/assets/{$file}"));
-
-                    $minifier->minify(PATH_HOME . VENDOR . $lib . "/assets/{$name}.min.{$ext}");
-                }
-            }
-        }
-    }
 
     /**
      * @param string $lib
      * @param string $file
+     * @return array
      */
-    private function getBaseParam(string $lib, string $file)
+    private function getBaseParam(string $lib, string $file): array
     {
         $base = [
             "version" => VERSION,

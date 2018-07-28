@@ -1,0 +1,29 @@
+<?php
+ob_start();
+require_once './_config/config.php';
+require_once './vendor/autoload.php';
+
+use Core\Sessao;
+use Core\Route;
+use Core\Link;
+use Core\Check;
+use Core\Template;
+
+new Sessao();
+$route = new Route();
+$link = new Link($route->getLib(), $route->getFile(), $route->getVar());
+
+if (!Check::ajax()) {
+    $view = new Template("core");
+    $view->show("index", $link->getParam());
+
+} elseif ($route->getRoute()) {
+    $data = ["response" => 1, "error" => "", "data" => ""];
+    include_once $route->getRoute();
+    include_once 'ajax.php';
+
+} else {
+    echo json_encode(["response" => 1, "error" => "", "data" => ""]);
+}
+
+ob_get_flush();

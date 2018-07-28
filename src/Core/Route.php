@@ -54,6 +54,7 @@ class Route
     }
 
     /**
+     * @param array $paths
      * @param string $dir
      */
     private function searchRoute(array $paths, string $dir = 'view')
@@ -78,7 +79,7 @@ class Route
                 $this->route = $this->findRoute($path, $dir);
             }
 
-            if (!$this->route && !Check::ajax()) {
+            if (!$this->route && !Validate::ajax()) {
                 $this->file = $path = "404";
                 if (!$this->route = $this->findRoute($path, $dir)) {
                     var_dump("Erro: Site não possúi arquivo 404 padrão. Crie o arquivo 'view/404.php'");
