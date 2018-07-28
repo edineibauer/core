@@ -1,6 +1,6 @@
 {
-  "name": "singular/core",
-  "description": "Core do framework Singular. Responsável por gerenciar, atualizar, redirecionar requests.",
+  "name": "single/core",
+  "description": "Single Core. Framework Single Core, responsável por gerenciar, atualizar, redirecionar requests.",
   "type": "library",
   "license": "MIT",
   "authors": [
