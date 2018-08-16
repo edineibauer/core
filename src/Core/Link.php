@@ -8,7 +8,6 @@
 
 namespace Core;
 
-use EntityForm\Dicionario;
 use MatthiasMullie\Minify;
 
 class Link
@@ -16,6 +15,7 @@ class Link
     private $url;
     private $param;
     private $dicionario;
+    private $devLibrary;
 
     /**
      * Link constructor.
@@ -26,6 +26,7 @@ class Link
     function __construct(string $lib, string $file, $var = null)
     {
         $this->devLibrary = "http://dev.ontab.com.br";
+        $this->dicionario = null;
 
         $this->param = $this->getBaseParam($lib, $file);
         if (empty($this->param['title']))
@@ -100,7 +101,8 @@ class Link
     {
         $entity = str_replace("-", "_", $file);
         if (file_exists(PATH_HOME . "entity/cache/{$entity}.json") && $var) {
-            $this->dicionario = new Dicionario($entity);
+            return "";
+            /*   $this->dicionario = new Dicionario($entity);
             $where = "WHERE id = {$var}";
             if ($linkId = $this->dicionario->getInfo()['link']) {
                 $where .= " || " . $this->dicionario->search($linkId)->getColumn() . " = '{$var}'";
@@ -110,7 +112,7 @@ class Link
                 if ($read->getResult()) {
                     return $read->getResult()[0][$this->dicionario->search($this->dicionario->getInfo()['title'])->getColumn()] . " | " . SITENAME;
                 }
-            }
+            }*/
         }
 
         return ($file === "index" ? SITENAME . (defined('SITESUB') && !empty(SITESUB) ? " | " . SITESUB : "") : ucwords(str_replace(['-', "_"], " ", $file)) . " | " . SITENAME);
@@ -141,15 +143,14 @@ class Link
      */
     private function minimizeJS(array $jsList, string $name = "core"): string
     {
-        $assets = "assets" . (DEV ? "Public" : "");
-        if (!file_exists(PATH_HOME . $assets . "/{$name}.min.js")) {
+        if (!file_exists(PATH_HOME . "assetsPublic/{$name}.min.js")) {
             $minifier = new Minify\JS("");
             foreach ($jsList as $js)
                 $minifier->add(PATH_HOME . $this->checkAssetsExist($js, 'js'));
 
-            $minifier->minify(PATH_HOME . $assets . "/{$name}.min.js");
+            $minifier->minify(PATH_HOME . "assetsPublic/{$name}.min.js");
         }
-        return "<script src='" . HOME . $assets . "/{$name}.min.js?v=" . VERSION . "' defer ></script>\n";
+        return "<script src='" . HOME . "assetsPublic/{$name}.min.js?v=" . VERSION . "' defer ></script>\n";
     }
 
     /**
@@ -161,22 +162,22 @@ class Link
      */
     private function minimizeCSS(array $cssList, string $name = "core"): string
     {
-        $assets = "assets" . (DEV ? "Public" : "");
-        if (!file_exists(PATH_HOME . $assets . "/{$name}.min.css")) {
+        if (!file_exists(PATH_HOME . "assetsPublic/{$name}.min.css")) {
             $minifier = new Minify\CSS("");
             $minifier->setMaxImportSize(30);
             foreach ($cssList as $css)
                 $minifier->add(PATH_HOME . $this->checkAssetsExist($css, 'css'));
 
-            $minifier->minify(PATH_HOME . $assets . "/{$name}.min.css");
+            $minifier->minify(PATH_HOME . "assetsPublic/{$name}.min.css");
         }
-        return "<link rel='stylesheet' href='" . HOME . $assets . "/{$name}.min.css?v=" . VERSION . "' >\n";
+        return "<link rel='stylesheet' href='" . HOME . "assetsPublic/{$name}.min.css?v=" . VERSION . "' >\n";
     }
 
     /**
      * Prepara o formato do título caso tenha variáveis
      *
      * @param string $title
+     * @param string $file
      * @return string
      */
     private function prepareTitle(string $title, string $file): string
@@ -209,27 +210,26 @@ class Link
     private function getFontIcon(string $item, string $tipo): string
     {
         $data = "";
-        $assets = (DEV ? "assetsPublic/" : "assets/");
         $urlOnline = $tipo === "font" ? "https://fonts.googleapis.com/css?family=" . ucfirst($item) . ":100,300,400,700" : "https://fonts.googleapis.com/icon?family=" . ucfirst($item) . "+Icons";
-        if (Helper::isOnline($urlOnline)) {
+        if (Validate::online($urlOnline)) {
             $data = file_get_contents($urlOnline);
             foreach (explode('url(', $data) as $i => $u) {
                 if ($i > 0) {
                     $url = explode(')', $u)[0];
-                    if (!file_exists(PATH_HOME . $assets . "fonts/" . pathinfo($url, PATHINFO_BASENAME))) {
-                        if (Helper::isOnline($url)) {
-                            Helper::createFolderIfNoExist(PATH_HOME . $assets . "fonts");
-                            $f = fopen(PATH_HOME . $assets . "fonts/" . pathinfo($url, PATHINFO_BASENAME), "w+");
+                    if (!file_exists(PATH_HOME . "assetsPublic/fonts/" . pathinfo($url, PATHINFO_BASENAME))) {
+                        if (Validate::online($url)) {
+                            Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/fonts");
+                            $f = fopen(PATH_HOME . "assetsPublic/fonts/" . pathinfo($url, PATHINFO_BASENAME), "w+");
                             fwrite($f, file_get_contents($url));
                             fclose($f);
-                            $data = str_replace($url, HOME . $assets . "fonts/" . pathinfo($url, PATHINFO_BASENAME), $data);
+                            $data = str_replace($url, HOME . "assetsPublic/fonts/" . pathinfo($url, PATHINFO_BASENAME), $data);
                         } else {
                             $before = "@font-face" . explode("@font-face", $u[$i - 1])[1] . "url(";
                             $after = explode("}", $u)[0];
                             $data = str_replace($before . $after, "", $data);
                         }
                     } else {
-                        $data = str_replace($url, HOME . $assets . "fonts/" . pathinfo($url, PATHINFO_BASENAME), $data);
+                        $data = str_replace($url, HOME . "assetsPublic/fonts/" . pathinfo($url, PATHINFO_BASENAME), $data);
                     }
                 }
             }
@@ -244,8 +244,7 @@ class Link
      */
     private function prepareFont($fontList, $iconList = null): string
     {
-        $assets = (DEV ? "assetsPublic/" : "assets/");
-        $path = $assets . "fonts.min.css";
+        $path = "assetsPublic/fonts.min.css";
         $fonts = "";
 
         if (!file_exists(PATH_HOME . $path)) {
@@ -291,10 +290,10 @@ class Link
      */
     private function checkAssetsExist(string $lib, string $extensao): string
     {
-        $file = (DEV ? "assetsPublic" : "assets") . "/{$lib}/{$lib}" . ".min.{$extensao}";
+        $file = "assetsPublic/{$lib}/{$lib}" . ".min.{$extensao}";
         if (!file_exists($file)) {
             $this->createFolderAssetsLibraries($file);
-            if (!Helper::isOnline("{$this->devLibrary}/{$lib}/{$lib}" . ".{$extensao}"))
+            if (!Validate::online("{$this->devLibrary}/{$lib}/{$lib}" . ".{$extensao}"))
                 return "";
 
             if ($extensao === 'js')

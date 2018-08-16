@@ -8,11 +8,10 @@ class Template
     private $folder;
     private $smart;
 
-    public function __construct($library = null)
+    public function __construct($library = 'core')
     {
-        if($library) {
+        if($library)
             $this->setLibrary($library);
-        }
     }
 
     /**
@@ -89,7 +88,7 @@ class Template
         //        $this->smart->caching = true;
         //        $this->smart->cache_lifetime = 120;
 
-        $this->smart->setTemplateDir($this->folder ?? (defined('DEV') && defined('DOMINIO') && DEV && $this->library === DOMINIO ? "tpl" : "vendor/conn/{$this->library}/tpl"));
+        $this->smart->setTemplateDir($this->folder ?? $this->library === DOMINIO ? "tpl" : VENDOR . "{$this->library}/tpl");
     }
 
     private function preData()
