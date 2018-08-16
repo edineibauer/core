@@ -69,22 +69,6 @@ class Link
 
     private function createMinFilesVendor()
     {
-        //Minifica todos os Vendors Assets
-        foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
-            foreach (Helper::listFolder(PATH_HOME . VENDOR . $lib . "/assets") as $file) {
-                $ext = pathinfo($file, PATHINFO_EXTENSION);
-                $name = pathinfo($file, PATHINFO_BASENAME);
-                if (preg_match('/(^\.min)\.[js|css]$/i', $file) && !file_exists(PATH_HOME . VENDOR . $lib . "/assets/{$name}.min.{$ext}")) {
-                    if (preg_match('/\.js$/i', $file))
-                        $minifier = new Minify\JS(file_get_contents(PATH_HOME . VENDOR . $lib . "/assets/{$file}"));
-                    else
-                        $minifier = new Minify\CSS(file_get_contents(PATH_HOME . VENDOR . $lib . "/assets/{$file}"));
-
-                    $minifier->minify(PATH_HOME . VENDOR . $lib . "/assets/{$name}.min.{$ext}");
-                }
-            }
-        }
-
         $f = ['js' => [], 'css' => [], 'font' => [], 'icon' => []];
         if(file_exists(PATH_HOME . "_config/param.json"))
             $f = json_decode(file_get_contents(PATH_HOME . "_config/param.json"), true);
@@ -208,7 +192,7 @@ class Link
 
     /**
      * Prepara o formato do título caso tenha variáveis
-     * 
+     *
      * @param string $title
      * @param string $file
      * @return string

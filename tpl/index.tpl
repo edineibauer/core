@@ -15,10 +15,10 @@
     <link rel="apple-touch-icon" href="{$favicon}">
     <meta name="msapplication-TileImage" content="{$favicon}">
     <meta name="msapplication-TileColor" content="#2F3BA2">
-
-    {$meta}
-    {$css}
+    <link rel='stylesheet' href='{$home}assetsPublic/core.min.css?v={$version}'>
+    <link rel='stylesheet' href='{$home}assetsPublic/fonts.min.css?v={$version}' type='text/css' media='all'/>
     {$font}
+
     <script>
         const HOME = '{$home}';
         const DOMINIO = '{$dominio}';
@@ -26,7 +26,7 @@
         const VENDOR = '{$vendor}';
         const LOADFILE = '{$url}';
     </script>
-    {$js}
+    <script src='{$home}assetsPublic/core.min.js?v={$version}' defer></script>
 </head>
 <body>
 <div class="col padding-medium theme z-depth-2 no-selec header relative" style="z-index: 19">
@@ -107,6 +107,15 @@
 
     <div class="col" id="main-app-sidebar">
         <ul class="col" id="applications"></ul>
+        {* <ul class="col border-bottom padding-bottom" id="actions">
+             <li class="col pointer color-hover-grey-light">
+                 <a href="{$home}dashboard" class="col padding-small padding-16">
+                     <i class="material-icons left padding-right font-xlarge">notifications</i>
+                     <span class="left padding-tiny">Notificações</span>
+                 </a>
+             </li>
+         </ul>*}
+
         <ul class="col border-top" id="menu">
             {$menu}
             {if $loged}
@@ -137,7 +146,7 @@
     </svg>
 </div>
 
-<section class="col space-header" id="content" data-initial="{$url}" data-load="0"></section>
+<section class="col space-header" id="content"></section>
 
 {if $analytics != ""}
     <script async src="https://www.googletagmanager.com/gtag/js?id={$analytics}"></script>
