@@ -15,10 +15,18 @@ class Route
     private $file;
     private $var;
 
-    public function __construct()
+    /**
+     * Route constructor.
+     * @param string|null $url
+     * @param string $dir
+     */
+    public function __construct(string $url = null, string $dir = "view")
     {
-        $paths = array_filter(explode('/', strip_tags(trim(filter_input(INPUT_GET, 'url', FILTER_DEFAULT)))));
-        $this->searchRoute($paths, 'view');
+        if (!$url)
+            $url = strip_tags(trim(filter_input(INPUT_GET, 'url', FILTER_DEFAULT)));
+
+        $paths = array_filter(explode('/', $url));
+        $this->searchRoute($paths, $dir);
     }
 
     /**
@@ -59,33 +67,47 @@ class Route
      */
     private function searchRoute(array $paths, string $dir = 'view')
     {
-        if (count($paths) > 1) {
-            $this->var = array_pop($paths);
-            $this->file = array_pop($paths);
-            if (!empty($paths))
-                $path = implode('/', $paths) . '/' . $this->file;
-            else
-                $path = $this->file;
-        } else {
-            $this->file = $path = $paths[0] ?? "index";
-        }
-
-        if (!$this->route = $this->findRoute($path, $dir)) {
-            //busca rota, considerando var como caminho
-            if ($this->var) {
-                $path .= "/{$this->var}";
-                $this->file = $this->var;
-                $this->var = null;
-                $this->route = $this->findRoute($path, $dir);
+        if($dir === 'view') {
+            if (count($paths) > 1) {
+                $this->var = array_pop($paths);
+                $this->file = array_pop($paths);
+                if (!empty($paths))
+                    $path = implode('/', $paths) . '/' . $this->file;
+                else
+                    $path = $this->file;
+            } else {
+                $this->file = $path = $paths[0] ?? "index";
             }
 
-            if (!$this->route && !Validate::ajax()) {
-                $this->file = $path = "404";
-                if (!$this->route = $this->findRoute($path, $dir)) {
-                    var_dump("Erro: Site não possúi arquivo 404 padrão. Crie o arquivo 'view/404.php'");
-                    die;
+            if (!$this->route = $this->findRoute($path, $dir)) {
+                //busca rota, considerando var como caminho
+                if ($this->var) {
+                    $path .= "/{$this->var}";
+                    $this->file = $this->var;
+                    $this->var = null;
+                    $this->route = $this->findRoute($path, $dir);
+                }
+
+                if (!$this->route && !Validate::ajax()) {
+                    $this->file = $path = "404";
+                    if (!$this->route = $this->findRoute($path, $dir)) {
+                        if($dir === "view") {
+                            var_dump("Erro: Site não possúi arquivo 404 padrão. Crie o arquivo 'view/404.php'");
+                            die;
+                        }
+                    }
                 }
             }
+        } elseif($dir === 'ajax') {
+            if (count($paths) > 1) {
+                $this->lib = $paths[0];
+                unset($paths[0]);
+                $this->file = implode("/", $paths);
+            } else {
+                $this->file = $paths[0] ?? "index";
+            }
+            if(!empty($this->lib) && file_exists(PATH_HOME . ($this->lib === DOMINIO ? "" : VENDOR . $this->lib . "/") . "{$dir}/" . $this->file . ".php" ))
+                $this->route = ($this->lib === DOMINIO ? "" : VENDOR . $this->lib . "/") . "{$dir}/" . $this->file . ".php";
         }
     }
 

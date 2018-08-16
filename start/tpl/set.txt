@@ -3,9 +3,9 @@ ob_start();
 require_once './_config/config.php';
 require_once './vendor/autoload.php';
 
-use LinkControl\Sessao;
-use LinkControl\Route;
-use \Helpers\Check;
+use Core\Sessao;
+use Core\Route;
+use Core\Check;
 
 /** RESPONSES
  * 1 -> rota encontrada e corretamente executada
@@ -20,7 +20,7 @@ $lib = filter_input(INPUT_POST, 'lib', FILTER_DEFAULT);
 $data = ["response" => 1, "error" => "", "data" => ""];
 
 if (empty($file) && empty($lib)) {
-    $url = explode('set/', $_SERVER['REQUEST_URI'])[1];
+    $url = strip_tags(trim($_GET['data']));
     $route = new Route($url, 'ajax');
     if ($route->getRoute())
         $include = $route->getRoute();

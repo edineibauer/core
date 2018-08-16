@@ -1,11 +1,12 @@
 <?php
+
 ob_start();
 require_once './_config/config.php';
 require_once './vendor/autoload.php';
 
-use LinkControl\Sessao;
-use LinkControl\Route;
-use LinkControl\Link;
+use Core\Sessao;
+use Core\Route;
+use Core\Link;
 
 /** RESPONSES
  * 1 -> rota encontrada e corretamente executada
@@ -15,11 +16,11 @@ use LinkControl\Link;
  * outro -> não faz nada
  * */
 
-$url = explode('get/', $_SERVER['REQUEST_URI']);
+$url = strip_tags(trim($_GET['data']));
 $data = ["response" => 1, "error" => "", "data" => ""];
-if (!empty($url[1])) {
+if (!empty($url)) {
     new Sessao();
-    $route = new Route($url[1]);
+    $route = new Route($url);
 
     if ($route->getRoute()) {
         include_once $route->getRoute();
@@ -48,7 +49,7 @@ if (!empty($url[1])) {
         $data["response"] = 4;
     }
 
-    if($data['response'] === 4 && preg_match('/^data\/\w+/i', $url[1]))
+    if($data['response'] === 4 && preg_match('/^data\/\w+/i', $url))
         $data["response"] = 5;
 } else {
     $data["response"] = 4;
