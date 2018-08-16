@@ -24,6 +24,7 @@
         const DOMINIO = '{$dominio}';
         const VERSION = {$version};
         const VENDOR = '{$vendor}';
+        const LOADFILE = '{$url}';
     </script>
     {$js}
 </head>
