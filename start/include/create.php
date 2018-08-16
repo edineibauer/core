@@ -34,14 +34,14 @@ function getServerConstants(array $dados)
     $localhost = ($_SERVER['SERVER_NAME'] === "localhost" ? true : false);
 
     $dados['sitesub'] = "";
-    $dados['dominio'] = ($localhost ? explode('/', $_SERVER['REQUEST_URI'])[1] : $_SERVER['SERVER_NAME']);
-    $dados['protocol'] = (isset($dados['protocol']) && $dados['protocol'] ? 'https://' : 'http://');
-    $dados['www'] = isset($dados['www']) && $dados['www'] ? "www" : "";
-    $dados['home'] = $dados['protocol'] . ($localhost ? 'localhost/' : '') . $dados['dominio'] . "/";
-    $dados['path_home'] = ($_SERVER['DOCUMENT_ROOT'] . ($localhost ? DIRECTORY_SEPARATOR . $dados['dominio'] : "") . "/");
+    $dados['dominio'] = ($localhost ? "localhost" . (in_array($_SERVER['SERVER_PORT'], ["80", "8080"]) ? explode('/', $_SERVER['REQUEST_URI'])[1] : $localhost ? ":{$_SERVER['SERVER_PORT']}" : "") : $_SERVER['SERVER_NAME']);
+    $dados['ssl'] = isset($dados['protocol']) && $dados['protocol'];
+    $dados['www'] = isset($dados['www']) && $dados['www'];
+    $dados['home'] = "http" . ($dados['ssl'] ? "s" : "") . "://" . (!empty($dados['dominio']) ? $dados['dominio'] . "/" : "");
+    $dados['path_home'] = $_SERVER['DOCUMENT_ROOT'] . "/";
     $dados['logo'] = (!empty($_FILES['logo']['name']) ? 'uploads/site/' . $_FILES['logo']['name'] : "");
     $dados['favicon'] = 'uploads/site/' . $_FILES['favicon']['name'];
-    $dados['vendor'] = "vendor/singular/";
+    $dados['vendor'] = "vendor/single/";
     $dados['version'] = "1.00";
 
     return $dados;
@@ -81,7 +81,7 @@ function createConfig(array $dados)
 function createRoute(array $dados)
 {
     $data = json_decode(file_get_contents("start/tpl/routes.json"), true);
-    if (!in_array($dados['dominio'], $data))
+    if (!empty($dados['dominio']) && !in_array($dados['dominio'], $data))
         $data[] = $dados['dominio'];
 
     writeFile("_config/route.json", json_encode($data));
@@ -115,7 +115,7 @@ function createManifest(array $dados) {
  */
 function createHtaccess(array $data, string $domain, string $www, string $protocol)
 {
-    $dados = "RewriteCond %{HTTP_HOST} ^" . ($www === "www" ? "{$domain}\nRewriteRule ^ {$protocol}://www.{$domain}%{REQUEST_URI}" : "www.(.*) [NC]\nRewriteRule ^(.*) {$protocol}://%1/$1") . " [L,R=301]";
+    $dados = "RewriteCond %{HTTP_HOST} ^" . ($www ? "{$domain}\nRewriteRule ^ http" . ($protocol ? "s" : "") . "://www.{$domain}%{REQUEST_URI}" : "www.(.*) [NC]\nRewriteRule ^(.*) http" . ($protocol ? "s" : "") . "://%1/$1") . " [L,R=301]";
     writeFile(".htaccess", str_replace(['{$dados}', '{$home}'], [$dados, $data['home']], file_get_contents("start/tpl/htaccess.txt")));
 }
 
@@ -157,6 +157,8 @@ if (!empty($dados['sitename']) && !empty($_FILES['favicon']['name'])) {
     createManifest($dados);
 
     writeFile("index.php", file_get_contents("start/tpl/index.txt"));
+    writeFile("set.php", file_get_contents("start/tpl/set.txt"));
+    writeFile("get.php", file_get_contents("start/tpl/get.txt"));
     writeFile("tim.php", file_get_contents("start/tpl/tim.txt"));
     writeFile("_config/entity_not_show.json", '{"1":[],"2":[],"3":[],"0":[]}');
     writeFile("_config/menu_not_show.json", '{"1":[],"2":[],"3":[],"0":[]}');
@@ -166,7 +168,7 @@ if (!empty($dados['sitename']) && !empty($_FILES['favicon']['name'])) {
     writeFile("entity/.htaccess", "Deny from all");
     writeFile("vendor/.htaccess", getAccessFile());
 
-    createHtaccess($dados, $dados['dominio'], $dados['www'], $dados['protocol']);
+    createHtaccess($dados, $dados['dominio'], $dados['www'], $dados['ssl']);
 
     header("Location: ../../../libsUpdate");
 } else {
