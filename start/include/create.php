@@ -80,7 +80,7 @@ function createConfig(array $dados)
  */
 function createRoute(array $dados)
 {
-    $data = json_decode(file_get_contents("start/tpl/routes.json"), true);
+    $data = json_decode(file_get_contents("start/tpl/routes.txt"), true);
     if (!empty($dados['dominio']) && !in_array($dados['dominio'], $data))
         $data[] = $dados['dominio'];
 
@@ -93,7 +93,7 @@ function createRoute(array $dados)
  */
 function createParam(array $dados)
 {
-    $data = str_replace('{$sitename}', $dados['sitename'], file_get_contents("start/tpl/param.json"));
+    $data = str_replace('{$sitename}', $dados['sitename'], file_get_contents("start/tpl/param.txt"));
     writeFile("_config/param.json", $data);
 }
 
