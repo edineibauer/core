@@ -29,11 +29,10 @@
     <script src='{$home}assetsPublic/core.min.js?v={$version}' defer></script>
 </head>
 <body>
-<div class="col padding-medium theme z-depth-2 no-selec header relative" style="z-index: 19">
-    <div class="col {if !$loged}container-1200{/if}">
+<div id="header" class="theme">
+    <div class="header-container">
         <header class="left padding-tiny header-logo">
             <a href="{$home}" class="left">
-
                 {if $logo != "" && $logo != $home}
                     <img src="{$logo}" alt="logo do site {$sitename}"
                          title="{$sitename} {($sitesub != "") ? " - $sitesub" : ""}" class="col" height="39"
@@ -48,7 +47,7 @@
             </a>
         </header>
         <nav class="right padding-tiny" role="navigation">
-            <ul class="right upper header-nav hide-medium hide-small">
+            <ul class="header-nav">
                 {if $loged}
                     <li class="left padding-0">
                         <a href="{$home}dashboard" class="right padding-medium">minha conta</a>
@@ -63,24 +62,24 @@
                         <a href="{$home}login" class="right padding-medium">login</a>
                     </li>
                 {/if}
+
+                <li id="open-menu" onclick="toggleSidebar()">
+                    <div class="menu icon" data-before="menu" data-after="remove"></div>
+                </li>
             </ul>
-            <span class="open-menu hide-large right hover-shadow pointer font-large btn-flat"
-                  style="padding: 6px 15px 1px">
-                <i class="material-icons">menu</i>
-            </span>
         </nav>
     </div>
 </div>
 
-<div class="col animate-left" id="app-sidebar">
+<div id="app-sidebar">
     <div class="col padding-medium theme color-grayscale-min" id="main-header-app-sidebar">
         <div class="col padding-medium perfil-sidebar">
             {if $loged}
                 {if $login.imagem}
                     <img src="{$home}image/{$login.imagem}&h=100&w=100" height="80" width="80"
-                         class="radius-circle margin-bottom z-depth-2">
+                         class="radius-circle margin-bottom z-depth-2" id="app-sidebar-img-perfil">
                 {else}
-                    <div class="col s4"><i class="material-icons font-jumbo">people</i></div>
+                    <div id="app-sidebar-img-perfil" class="col s4"><i class="material-icons font-jumbo">people</i></div>
                 {/if}
                 <div class="col font-large font-bold">
                     {$login.nome}
@@ -96,11 +95,10 @@
                     </button>
                 </div>
             {else}
-                <i class="material-icons font-jumbo margin-bottom">people</i>
-                <div class="col font-large font-bold">
+                <i id="app-sidebar-img-perfil" class="material-icons font-jumbo margin-bottom">people</i>
+                <div class="app-sidebar-name">
                     Anônimo
                 </div>
-                <div class="col font-medium font-light">{$email}</div>
             {/if}
         </div>
     </div>
@@ -138,7 +136,7 @@
     </div>
 </div>
 
-<div class="overlay hide-large animate-opacity" id="myOverlay"></div>
+<div id="myOverlay" onclick="closeSidebar()"></div>
 
 <div class="loader">
     <svg viewBox="0 0 32 32" width="32" height="32">

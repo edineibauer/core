@@ -8,7 +8,8 @@
     "app"
   ],
   "css": [
-    "w3",
+    "normalize",
+    "cssIcon",
     "theme",
     "panel",
     "app"
