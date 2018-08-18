@@ -27,6 +27,10 @@ class Link
     {
         $this->dicionario = null;
         $this->devLibrary = "http://dev.ontab.com.br";
+        Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic");
+        Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/dist");
+        Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/dist/route");
+        $this->createParamDefault();
 
         $this->param = $this->getBaseParam($lib, $file);
         if (empty($this->param['title']))
@@ -34,7 +38,7 @@ class Link
         else
             $this->param['title'] = $this->prepareTitle($this->param['title'], $file);
 
-        $this->createMinFilesVendor();
+        $this->createParam($this->param, $file);
         $this->param["vendor"] = VENDOR;
         $this->param["url"] = $file . (!empty($var) ? "/{$var}" : "");
         $this->param['loged'] = !empty($_SESSION['userlogin']);
@@ -67,15 +71,30 @@ class Link
         return $this->param;
     }
 
-    private function createMinFilesVendor()
+    /**
+     * Cria os Parametros da página
+     * @param array $f
+     * @param string $file
+     */
+    private function createParam(array $f, string $file)
+    {
+        $this->createCoreJs($f['js'], 'dist/route/' . $file);
+        $this->createCoreCss($f['css'], 'dist/route/' . $file);
+        $this->createCoreFont($f['font'], $f['icon'], 'dist/route/' . $file);
+    }
+
+    /**
+     * Cria os Cores defaults setados em Config
+     */
+    private function createParamDefault()
     {
         $f = ['js' => [], 'css' => [], 'font' => [], 'icon' => []];
-        if(file_exists(PATH_HOME . "_config/param.json"))
+        if (file_exists(PATH_HOME . "_config/param.json"))
             $f = json_decode(file_get_contents(PATH_HOME . "_config/param.json"), true);
 
-        $this->createCoreJs($f['js'], 'core');
-        $this->createCoreCss($f['css'], 'core');
-        $this->createCoreFont($f['font'], $f['icon'], 'fonts');
+        $this->createCoreJs($f['js'], 'dist/core');
+        $this->createCoreCss($f['css'], 'dist/core');
+        $this->createCoreFont($f['font'], $f['icon'], 'dist/fonts');
     }
 
     /**
@@ -88,9 +107,10 @@ class Link
         $base = [
             "version" => VERSION,
             "meta" => "",
-            "css" => "",
-            "js" => "",
+            "css" => [],
+            "js" => [],
             "font" => "",
+            "icon" => "",
             "descricao" => "",
             "analytics" => defined("ANALYTICS") ? ANALYTICS : ""
         ];
@@ -99,11 +119,11 @@ class Link
         if (file_exists(PATH_HOME . $pathFile . "param/{$file}.json"))
             $base = array_merge($base, json_decode(file_get_contents(PATH_HOME . ($lib === DOMINIO ? "" : VENDOR . "{$lib}/") . "param/{$file}.json"), true));
 
-        if(file_exists(PATH_HOME . $pathFile . "assets/{$file}.min.js"))
-            $base['js'][] = HOME . $pathFile . "assets/{$file}.min.js";
+        if (file_exists(PATH_HOME . $pathFile . "assets/{$file}.js"))
+            $base['js'][] = PATH_HOME . $pathFile . "assets/{$file}.js";
 
-        if(file_exists(PATH_HOME . $pathFile . "assets/{$file}.min.css"))
-            $base['css'][] = HOME . $pathFile . "assets/{$file}.min.css";
+        if (file_exists(PATH_HOME . $pathFile . "assets/{$file}.css"))
+            $base['css'][] = PATH_HOME . $pathFile . "assets/{$file}.css";
 
         return $base;
     }
@@ -142,12 +162,20 @@ class Link
      */
     private function createCoreJs(array $jsList, string $name = "core")
     {
-        if (!file_exists(PATH_HOME . "assetsPublic/{$name}.min.js")) {
+        if (file_exists(PATH_HOME . "assetsPublic/{$name}.min.js")) {
+            $this->param['js'] = [HOME . "assetsPublic/{$name}.min.js"];
+
+        } elseif (!empty($jsList)) {
             $minifier = new Minify\JS("");
-            foreach ($jsList as $js)
-                $minifier->add(PATH_HOME . $this->checkAssetsExist($js, "js"));
+            foreach ($jsList as $js) {
+                if (!preg_match('/\//i', $js))
+                    $minifier->add(PATH_HOME . $this->checkAssetsExist($js, "js"));
+                else
+                    $minifier->add($js);
+            }
 
             $minifier->minify(PATH_HOME . "assetsPublic/{$name}.min.js");
+            $this->param['js'] = [HOME . "assetsPublic/{$name}.min.js"];
         }
     }
 
@@ -157,13 +185,22 @@ class Link
      */
     private function createCoreCss(array $cssList, string $name = "core")
     {
-        if (!file_exists(PATH_HOME . "assetsPublic/{$name}.min.css")) {
+        if (file_exists(PATH_HOME . "assetsPublic/{$name}.min.css")) {
+            $this->param['css'] = [HOME . "assetsPublic/{$name}.min.css"];
+
+        } elseif (!empty($cssList)) {
             $minifier = new Minify\CSS("");
             $minifier->setMaxImportSize(30);
-            foreach ($cssList as $css)
-                $minifier->add(PATH_HOME . $this->checkAssetsExist($css, "css"));
+
+            foreach ($cssList as $css) {
+                if (!preg_match('/\//i', $css))
+                    $minifier->add(PATH_HOME . $this->checkAssetsExist($css, "css"));
+                else
+                    $minifier->add($css);
+            }
 
             $minifier->minify(PATH_HOME . "assetsPublic/{$name}.min.css");
+            $this->param['css'] = [HOME . "assetsPublic/{$name}.min.css"];
         }
     }
 
@@ -174,13 +211,13 @@ class Link
      */
     private function createCoreFont($fontList, $iconList = null, string $name = 'fonts')
     {
-        if (!file_exists(PATH_HOME . "assetsPublic/{$name}.min.css")) {
+        if ((!empty($fontList) || !empty($iconList)) && !file_exists(PATH_HOME . "assetsPublic/{$name}.min.css")) {
             $fonts = "";
-            if ($fontList) {
+            if (!empty($fontList)) {
                 foreach ($fontList as $item)
                     $fonts .= $this->getFontIcon($item, "font");
             }
-            if ($iconList) {
+            if (!empty($iconList)) {
                 foreach ($iconList as $item)
                     $fonts .= $this->getFontIcon($item, "icon");
             }
