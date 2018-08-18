@@ -1,28 +1,30 @@
-<?php
-ob_start();
-?>
-<div class="row">
-    <div class="panel align-center" style="max-width: 900px; margin: auto; float: initial">
-
-        <div class="row">
-            <div class="col s12 m6">
-                <br>
-                <div class="panel font-xlarge font-light padding-32">
-                    Algo deu errado...
-                </div>
-            </div>
-            <div class="col s12 m6">
-                <h1 class="font-jumbo">404</h1>
-            </div>
+<div id="body-404">
+    <div id="clouds-404">
+        <div class="x11">
+            <div class="cloud x1"></div>
         </div>
-
+        <div class="x15">
+            <div class="cloud x1_5"></div>
+        </div>
+        <div class="x22">
+            <div class="cloud x2"></div>
+        </div>
+        <div class="x33">
+            <div class="cloud x3"></div>
+        </div>
+        <div class="x44">
+            <div class="cloud x4"></div>
+        </div>
+        <div class="x55">
+            <div class="cloud x5"></div>
+        </div>
+    </div>
+    <div class='c'>
+        <div class='_404'>404</div>
+        <hr class="hr-404">
+        <div class='_1'>PÁGINA</div>
+        <div class='_2'>NÃO ENCONTRADA</div>
         <br><br>
-        <div class="align-center">
-            <a class="btn-large opacity hover-shadow color-white" style="text-decoration: none; margin: auto; float: initial" href="<?= HOME ?>">Home</a>
-        </div>
-
+        <a class='btn-404 theme-d1' href='<?=HOME?>'>VOLTAR AO INÍCIO</a>
     </div>
 </div>
-<?php
-$data['data'] = ob_get_contents();
-ob_end_clean();
