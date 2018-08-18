@@ -15,8 +15,8 @@
     <link rel="apple-touch-icon" href="{$favicon}">
     <meta name="msapplication-TileImage" content="{$favicon}">
     <meta name="msapplication-TileColor" content="#2F3BA2">
-    <link rel='stylesheet' href='{$home}assetsPublic/core.min.css?v={$version}'>
-    <link rel='stylesheet' href='{$home}assetsPublic/fonts.min.css?v={$version}' type='text/css' media='all'/>
+    <link rel='stylesheet' href='{$home}assetsPublic/dist/core.min.css?v={$version}'>
+    <link rel='stylesheet' href='{$home}assetsPublic/dist/fonts.min.css?v={$version}' type='text/css' media='all'/>
     {$font}
 
     <script>
@@ -26,7 +26,7 @@
         const VENDOR = '{$vendor}';
         const LOADFILE = '{$url}';
     </script>
-    <script src='{$home}assetsPublic/core.min.js?v={$version}' defer></script>
+    <script src='{$home}assetsPublic/dist/core.min.js?v={$version}' defer></script>
 </head>
 <body>
 <div id="header" class="theme">
