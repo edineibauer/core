@@ -308,12 +308,47 @@ class Link
             if ($extensao === 'js')
                 $mini = new Minify\JS(file_get_contents("{$this->devLibrary}/{$lib}/{$lib}" . ".{$extensao}"));
             else
-                $mini = new Minify\CSS(file_get_contents("{$this->devLibrary}/{$lib}/{$lib}" . ".{$extensao}"));
+                $mini = new Minify\CSS($this->preperaCss("{$this->devLibrary}/{$lib}/{$lib}" . ".{$extensao}"));
 
             $mini->minify(PATH_HOME . "assetsPublic/{$lib}/{$lib}.min.{$extensao}");
         }
 
         return "assetsPublic/{$lib}/{$lib}.min.{$extensao}";
+    }
+
+    private function preperaCss(string $url)
+    {
+        $content = file_get_contents($url);
+        $pattern = '!/\*[^*]*\*+([^/][^*]*\*+)*/!';
+        $content = preg_replace($pattern, '', $content);
+        $tags = ['*','html', 'body', 'nav', 'section', 'aside', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'li', 'a'];
+
+        $el = explode('{', $content);
+        foreach ($el as $i => $e) {
+            if(preg_match('/}/i', $e))
+                $item = trim(explode('}', $e)[1]);
+            else
+                $item = trim($e);
+
+            if(!preg_match('/^@/i', $item)) {
+                $base = $item;
+                foreach (explode(',', $item) as $it){
+                    if(in_array(trim($it), $tags) || preg_match("/^(\\" . implode('|', $tags) . ")(:|\s)/i", trim($it)))
+                        $base = str_replace($it, '', $base);
+                }
+                if(!empty($base) && preg_match('/^,/i', trim($base)))
+                    $base = substr(trim($base), 1);
+
+                if(empty($base))
+                    $content = str_replace(explode('}', $e)[1] . '{' . explode('}', $el[$i+1])[0] . '}', '', $content);
+                else
+                    $content = str_replace($item, $base, $content);
+            }
+        }
+
+        $content = str_replace([',,,,', ',,,', ',,'], [',', ',', ','], $content);
+
+        return $content;
     }
 
     /**
