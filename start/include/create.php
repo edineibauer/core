@@ -149,6 +149,7 @@ if (!empty($dados['sitename']) && !empty($_FILES['favicon']['name'])) {
     createDir("uploads/site");
     createDir("_config");
     createDir("_cdn");
+    createDir("_cdn/store");
 
     uploadFiles();
     createConfig($dados);
@@ -165,6 +166,7 @@ if (!empty($dados['sitename']) && !empty($_FILES['favicon']['name'])) {
     writeFile("entity/general/general_info.json", "[]");
     writeFile("_config/.htaccess", "Deny from all");
     writeFile("_cdn/.htaccess", "Deny from all");
+    writeFile("_cdn/store/.htaccess", "Deny from all");
     writeFile("entity/.htaccess", "Deny from all");
     writeFile("vendor/.htaccess", getAccessFile());
 
