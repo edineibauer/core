@@ -54,7 +54,7 @@ class Helper
      * @param array $array2
      * @return array
      */
-    public static function arrayMergeRecursive(array &$array1, array &$array2): array
+    public static function arrayMerge(array &$array1, array &$array2): array
     {
         $merged = $array1;
         foreach ($array2 as $key => &$value) {
