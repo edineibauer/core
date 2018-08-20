@@ -59,7 +59,7 @@ class Helper
         $merged = $array1;
         foreach ($array2 as $key => &$value) {
             if (is_array($value) && isset($merged[$key]) && is_array($merged[$key]))
-                $merged[$key] = self::array_merge_recursive_distinct($merged[$key], $value);
+                $merged[$key] = self::arrayMerge($merged[$key], $value);
             else
                 $merged[$key] = $value;
         }
