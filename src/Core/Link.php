@@ -344,7 +344,7 @@ class Link
                             if (in_array(trim($it), $tags) || preg_match("/^(" . implode('|', $tags) . ")(:|\s)/i", trim($it)))
                                 $base = str_replace(trim($it), "#app-content " . trim($it), $base);
                             elseif (in_array(trim($it), $tagsG) || preg_match("/^(\\" . implode('|', $tagsG) . ")(:|\s)/i", trim($it)))
-                                $base = str_replace($it, "#app-content", $base);
+                                $base = str_replace($it, "", $base);
                         }
                     }
                     if (!empty($base) && preg_match('/^,/i', trim($base)))
