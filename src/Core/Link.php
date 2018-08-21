@@ -318,12 +318,13 @@ class Link
 
     private function preperaCss(string $url)
     {
-        $content = file_get_contents($url);
-        $pattern = '!/\*[^*]*\*+([^/][^*]*\*+)*/!';
-        $content = preg_replace($pattern, '', $content);
-        $tags = ['*','html', 'body', 'nav', 'section', 'aside', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'li', 'a'];
+        $m = new Minify\CSS(file_get_contents($url));
+        $content = $m->minify();
+        $tags = ['nav', 'section', 'aside', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'li', 'a'];
+        $tagsG = ['*','html', 'body'];
 
         $el = explode('{', $content);
+        $content2 = $content;
         foreach ($el as $i => $e) {
             if(preg_match('/}/i', $e))
                 $item = trim(explode('}', $e)[1]);
@@ -333,22 +334,29 @@ class Link
             if(!preg_match('/^@/i', $item)) {
                 $base = $item;
                 foreach (explode(',', $item) as $it){
-                    if(in_array(trim($it), $tags) || preg_match("/^(\\" . implode('|', $tags) . ")(:|\s)/i", trim($it)))
-                        $base = str_replace($it, '', $base);
+                    if(!empty($it)) {
+                        if (in_array(trim($it), $tags) || preg_match("/^(" . implode('|', $tags) . ")(:|\s)/i", trim($it)))
+                            $base = str_replace(trim($it), "#content " . trim($it), $base);
+                        elseif (in_array(trim($it), $tagsG) || preg_match("/^(\\" . implode('|', $tagsG) . ")(:|\s)/i", trim($it)))
+                            $base = str_replace($it, "", $base);
+                    }
                 }
                 if(!empty($base) && preg_match('/^,/i', trim($base)))
                     $base = substr(trim($base), 1);
 
+                $base = str_replace(["#content #content #content", "#content #content"], "#content", $base);
+
                 if(empty($base))
-                    $content = str_replace(explode('}', $e)[1] . '{' . explode('}', $el[$i+1])[0] . '}', '', $content);
+                    $content2 = str_replace(explode('}', $e)[1] . '{' . explode('}', $el[$i+1])[0] . '}', '', $content2);
+                elseif(preg_match("/#content /i", $base))
+                    $content2 = str_replace("}{$item}{", "}{$base}{", $content2);
                 else
-                    $content = str_replace($item, $base, $content);
+                    $content2 = str_replace($item, $base, $content2);
             }
         }
+        $content2 = str_replace([',,,,', ',,,', ',,'], ',', $content2);
 
-        $content = str_replace([',,,,', ',,,', ',,'], [',', ',', ','], $content);
-
-        return $content;
+        return $content2;
     }
 
     /**
