@@ -15,7 +15,7 @@
 
 {include 'loading.tpl'}
 
-<section class="col space-header" id="content"></section>
+<section id="app-content"></section>
 
 {include 'analytics.tpl'}
 
