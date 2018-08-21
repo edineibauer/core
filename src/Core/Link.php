@@ -186,7 +186,7 @@ class Link
     private function createCoreCss(array $cssList, string $name = "core")
     {
         if (file_exists(PATH_HOME . "assetsPublic/{$name}.min.css")) {
-            $this->param['css'] = [HOME . "assetsPublic/{$name}.min.css"];
+            $this->param['css'] = file_get_contents(PATH_HOME . "assetsPublic/{$name}.min.css");
 
         } elseif (!empty($cssList)) {
             $minifier = new Minify\CSS("");
@@ -200,7 +200,7 @@ class Link
             }
 
             $minifier->minify(PATH_HOME . "assetsPublic/{$name}.min.css");
-            $this->param['css'] = [HOME . "assetsPublic/{$name}.min.css"];
+            $this->param['css'] = $minifier->minify();
         }
     }
 
@@ -224,6 +224,7 @@ class Link
 
             $m = new Minify\CSS($fonts);
             $m->minify(PATH_HOME . "assetsPublic/{$name}.min.css");
+            $this->param['css'] .= $m->minify();
         }
     }
 
@@ -323,44 +324,45 @@ class Link
      */
     private function preperaCss(string $url, string $lib)
     {
-        if(!in_array($lib, ["app", "normalize", "panel", "theme", "boot"])) {
+        if (!in_array($lib, ["app", "normalize", "panel", "theme", "boot"])) {
             $m = new Minify\CSS(file_get_contents($url));
             $content = $m->minify();
-            $tags = ['nav', 'section', 'aside', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'li', 'a'];
-            $tagsG = ['html', 'body'];
+            $tags = ['nav', 'section', 'aside', 'ul', 'li', 'img', 'i'];
 
             $el = explode('{', $content);
             $content2 = $content;
             foreach ($el as $i => $e) {
-                if (preg_match('/}/i', $e))
-                    $item = trim(explode('}', $e)[1]);
-                else
+                $c = "}";
+                if (preg_match('/}/i', $e)) {
+                    $item = explode('}', $e);
+                    $item = trim($item[count($item) -1]);
+                } else {
                     $item = trim($e);
-
+                    $c = "";
+                }
                 if (!preg_match('/^@/i', $item)) {
-                    $base = $item;
-                    foreach (explode(',', $item) as $it) {
+                    $t = explode(',', $item);
+                    foreach ($t as $l => $it) {
                         if (!empty($it)) {
                             if (in_array(trim($it), $tags) || preg_match("/^(" . implode('|', $tags) . ")(:|\s)/i", trim($it)))
-                                $base = str_replace(trim($it), "#app-content " . trim($it), $base);
-                            elseif (in_array(trim($it), "*") || preg_match("/^\*(:|\s)/i", trim($it)))
-                                $base =  str_replace($it, "", $base);
-                            elseif (in_array(trim($it), $tagsG) || preg_match("/^(\\" . implode('|', $tagsG) . ")(:|\s)/i", trim($it)))
-                                $base =  str_replace($it, "#app-content", $base);
+                                $t[$l] = ".app-content " . trim($it);
+                            elseif (trim($it) === "*" || preg_match("/^\*(:|\s)/i", trim($it)))
+                                $t[$l] = "";
+                            elseif (trim($it) === 'body')
+                                $t[$l] = "#app-content";
+                            elseif (preg_match("/^body(:|\s)/i", trim($it)))
+                                $t[$l] = preg_replace("/^(html|body)(:|\s)/",'#app-content\1', trim($it));
                         }
                     }
-                    if (!empty($base) && preg_match('/^,/i', trim($base)))
-                        $base = substr(trim($base), 1);
+                    $base = implode(',', array_filter($t));
 
-                    $base = str_replace(["#app-content #app-content #app-content", "#app-content #app-content"], "#app-content", $base);
-
-                    if (empty($base))
-                        $content2 = str_replace(explode('}', $e)[1] . '{' . explode('}', $el[$i + 1])[0] . '}', '', $content2);
-                    elseif ($item !== $base)
-                        $content2 = str_replace("}{$item}{", "}{$base}{", $content2);
+                    if (empty($base) && isset($el[$i + 1])) {
+                        $content2 = str_replace((!empty($c) ? $item : $e) . '{' . explode('}', $el[$i + 1])[0] . '}', '', $content2);
+                    } elseif ($item !== $base) {
+                        $content2 = str_replace("{$c}{$item}{", "{$c}{$base}{", $content2);
+                    }
                 }
             }
-            $content2 = str_replace([',,,,', ',,,', ',,'], ',', $content2);
 
             return $content2;
         } else {

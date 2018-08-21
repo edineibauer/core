@@ -14,8 +14,8 @@
 <meta name="msapplication-TileColor" content="#2F3BA2">
 <link rel='stylesheet' href='{$home}assetsPublic/dist/core.min.css?v={$version}'>
 <link rel='stylesheet' href='{$home}assetsPublic/dist/fonts.min.css?v={$version}' type='text/css' media='all'/>
-{$font}
 
+<style type="text/css" id="app-style"></style>
 <script>
     const HOME = '{$home}';
     const DOMINIO = '{$dominio}';
@@ -23,4 +23,6 @@
     const VENDOR = '{$vendor}';
     const LOADFILE = '{$url}';
 </script>
+<script id="app-script"></script>
+
 <script src='{$home}assetsPublic/dist/core.min.js?v={$version}' defer></script>
