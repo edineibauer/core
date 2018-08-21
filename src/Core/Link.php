@@ -327,7 +327,7 @@ class Link
             $m = new Minify\CSS(file_get_contents($url));
             $content = $m->minify();
             $tags = ['nav', 'section', 'aside', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'li', 'a'];
-            $tagsG = ['*', 'html', 'body'];
+            $tagsG = ['html', 'body'];
 
             $el = explode('{', $content);
             $content2 = $content;
@@ -343,8 +343,10 @@ class Link
                         if (!empty($it)) {
                             if (in_array(trim($it), $tags) || preg_match("/^(" . implode('|', $tags) . ")(:|\s)/i", trim($it)))
                                 $base = str_replace(trim($it), "#app-content " . trim($it), $base);
+                            elseif (in_array(trim($it), "*") || preg_match("/^\*(:|\s)/i", trim($it)))
+                                $base =  str_replace($it, "", $base);
                             elseif (in_array(trim($it), $tagsG) || preg_match("/^(\\" . implode('|', $tagsG) . ")(:|\s)/i", trim($it)))
-                                $base = str_replace($it, "", $base);
+                                $base =  str_replace($it, "#app-content", $base);
                         }
                     }
                     if (!empty($base) && preg_match('/^,/i', trim($base)))
