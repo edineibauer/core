@@ -348,10 +348,8 @@ class Link
 
                 if(empty($base))
                     $content2 = str_replace(explode('}', $e)[1] . '{' . explode('}', $el[$i+1])[0] . '}', '', $content2);
-                elseif(preg_match("/#content /i", $base))
-                    $content2 = str_replace("}{$item}{", "}{$base}{", $content2);
                 else
-                    $content2 = str_replace($item, $base, $content2);
+                    $content2 = str_replace("}{$item}{", "}{$base}{", $content2);
             }
         }
         $content2 = str_replace([',,,,', ',,,', ',,'], ',', $content2);
