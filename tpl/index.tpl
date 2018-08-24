@@ -9,13 +9,13 @@
     {include 'header.tpl'}
 </div>
 
-<aside id="app-sidebar">
+<aside id="single-sidebar">
     {include 'aside.tpl'}
 </aside>
 
 {include 'loading.tpl'}
 
-<section id="app-content"></section>
+<section id="single-content"></section>
 
 {include 'analytics.tpl'}
 

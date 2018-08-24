@@ -345,13 +345,13 @@ class Link
                     foreach ($t as $l => $it) {
                         if (!empty($it)) {
                             if (in_array(trim($it), $tags) || preg_match("/^(" . implode('|', $tags) . ")(:|\s)/i", trim($it)))
-                                $t[$l] = ".app-content " . trim($it);
+                                $t[$l] = "#single-content " . trim($it);
                             elseif (trim($it) === "*" || preg_match("/^\*(:|\s)/i", trim($it)))
                                 $t[$l] = "";
                             elseif (trim($it) === 'body')
-                                $t[$l] = "#app-content";
+                                $t[$l] = "#single-content";
                             elseif (preg_match("/^body(:|\s)/i", trim($it)))
-                                $t[$l] = preg_replace("/^(html|body)(:|\s)/",'#app-content\1', trim($it));
+                                $t[$l] = preg_replace("/^(html|body)(:|\s)/",'#single-content\1', trim($it));
                         }
                     }
                     $base = implode(',', array_filter($t));
