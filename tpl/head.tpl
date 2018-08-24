@@ -23,6 +23,5 @@
     const VENDOR = '{$vendor}';
     const LOADFILE = '{$url}';
 </script>
-<script id="app-script"></script>
 
 <script src='{$home}assetsPublic/dist/core.min.js?v={$version}' defer></script>
