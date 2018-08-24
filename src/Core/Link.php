@@ -162,7 +162,7 @@ class Link
      */
     private function createCoreJs(array $jsList, string $name = "core")
     {
-        if (file_exists(PATH_HOME . "assetsPublic/{$name}.min.js")) {
+        if (PRODUCAO && file_exists(PATH_HOME . "assetsPublic/{$name}.min.js")) {
             $this->param['js'] = [HOME . "assetsPublic/{$name}.min.js"];
 
         } elseif (!empty($jsList)) {
@@ -185,7 +185,7 @@ class Link
      */
     private function createCoreCss(array $cssList, string $name = "core")
     {
-        if (file_exists(PATH_HOME . "assetsPublic/{$name}.min.css")) {
+        if (PRODUCAO && file_exists(PATH_HOME . "assetsPublic/{$name}.min.css")) {
             $this->param['css'] = file_get_contents(PATH_HOME . "assetsPublic/{$name}.min.css");
 
         } elseif (!empty($cssList)) {
