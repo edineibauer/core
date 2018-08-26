@@ -38,7 +38,7 @@ function getServerConstants(array $dados)
     $dados['dominio'] = ($localhost ? "localhost" . (in_array($_SERVER['SERVER_PORT'], ["80", "8080"]) ? explode('/', $_SERVER['REQUEST_URI'])[1] : $localhost ? ":{$_SERVER['SERVER_PORT']}" : "") : $_SERVER['SERVER_NAME']);
     $dados['ssl'] = isset($dados['protocol']) && $dados['protocol'];
     $dados['www'] = isset($dados['www']) && $dados['www'];
-    $dados['home'] = "http" . ($dados['ssl'] ? "s" : "") . "://" . (!empty($dados['dominio']) ? $dados['dominio'] . "/" : "");
+    $dados['home'] = "'http' . (SSL ? 's' : '') . '://' . (!empty(DOMINIO) ? DOMINIO . '/' : '')";
     $dados['path_home'] = $_SERVER['DOCUMENT_ROOT'] . "/";
     $dados['logo'] = (!empty($_FILES['logo']['name']) ? 'uploads/site/' . $_FILES['logo']['name'] : "");
     $dados['favicon'] = 'uploads/site/' . $_FILES['favicon']['name'];
@@ -68,7 +68,7 @@ function createConfig(array $dados)
 {
     $conf = "<?php\n";
     foreach ($dados as $dado => $value) {
-        $value = (is_bool($value) ? ($value ? 'true' : 'false') : "'{$value}'");
+        $value = (is_bool($value) ? ($value ? 'true' : 'false') : (!preg_match("/\'/i", $value) ? "'{$value}'" : $value));
         $conf .= "define('" . strtoupper(trim($dado)) . "', {$value});\n";
     }
 
