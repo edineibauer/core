@@ -1,27 +1,25 @@
-    <div class="col padding-medium theme color-grayscale-min" id="main-header-single-sidebar">
-        <div class="col padding-medium perfil-sidebar">
+    <div class="theme" id="main-header-single-sidebar">
+        <div id="perfil-sidebar">
             {if $loged}
                 {if $login.imagem}
-                    <img src="{$home}image/{$login.imagem}&h=100&w=100" height="80" width="80"
-                         class="radius-circle margin-bottom z-depth-2" id="single-sidebar-img-perfil">
+                    <img src="{$home}image/{$login.imagem}&h=100&w=100" height="80" width="80" id="single-sidebar-img-perfil">
                 {else}
-                    <div id="single-sidebar-img-perfil" class="col s4"><i class="material-icons font-jumbo">people</i></div>
+                    <div id="single-sidebar-img-perfil"><i class="material-icons">people</i></div>
                 {/if}
-                <div class="col font-large font-bold">
+                <div>
                     {$login.nome}
                 </div>
-                <div class="col font-medium font-light">
-                    <span class="left">
+                <div>
+                    <span>
                         {$login.email}
                     </span>
-                    <button id="btn-editLogin" style="margin-top: -13px"
-                            class="right color-white opacity z-depth-0 border hover-opacity-off radius padding-small color-grey-light">
-                        <i class="material-icons left font-large">edit</i>
-                        <span class="left" style="padding-right: 5px">perfil</span>
+                    <button id="btn-editLogin" style="margin-top: -13px">
+                        <i class="material-icons">edit</i>
+                        <span style="padding-right: 5px">perfil</span>
                     </button>
                 </div>
             {else}
-                <i id="single-sidebar-img-perfil" class="material-icons font-jumbo margin-bottom">people</i>
+                <i id="single-sidebar-img-perfil" class="material-icons">people</i>
                 <div id="single-sidebar-name">
                     Anônimo
                 </div>
@@ -29,8 +27,8 @@
         </div>
     </div>
 
-    <div class="col" id="main-single-sidebar">
-        <ul class="col" id="applications"></ul>
+    <div id="main-single-sidebar">
+        <ul id="single-applications"></ul>
         {* <ul class="col border-bottom padding-bottom" id="actions">
              <li class="col pointer color-hover-grey-light">
                  <a href="{$home}dashboard" class="col padding-small padding-16">
@@ -40,22 +38,22 @@
              </li>
          </ul>*}
 
-        <ul class="col border-top" id="menu">
+        <ul id="menu">
             {$menu}
             {if $loged}
-                <li class="col pointer color-hover-grey-light">
-                    <a href="{$home}dashboard" class="col padding-large opacity hover-opacity-off">
+                <li>
+                    <a href="{$home}dashboard">
                         Minha Conta
                     </a>
                 </li>
-                <li class="col pointer color-hover-grey-light">
-                    <span onclick="logoutDashboard()" class="col padding-large opacity hover-opacity-off">
+                <li>
+                    <span onclick="logoutDashboard()">
                         sair
                     </span>
                 </li>
             {else}
-                <li class="col pointer color-hover-grey-light">
-                    <a href="{$home}login" class="col padding-large">login</a>
+                <li>
+                    <a href="{$home}login">login</a>
                 </li>
             {/if}
         </ul>
