@@ -324,7 +324,7 @@ class Link
      */
     private function preperaCss(string $url, string $lib)
     {
-        if (!in_array($lib, ["app", "normalize", "panel", "theme", "boot"])) {
+        if (!in_array($lib, ["single", "normalize", "panel", "theme", "boot"])) {
             $m = new Minify\CSS(file_get_contents($url));
             $content = $m->minify();
             $tags = ['nav', 'section', 'aside', 'ul', 'li', 'img', 'i'];
