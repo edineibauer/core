@@ -2,7 +2,7 @@
 <meta name="robots" content="index, follow"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{$title}</title>
+<title class="single-title">{$title}</title>
 <link rel="canonical" href="{$home}">
 <link rel="shortcut icon" href="{$favicon}">
 <link rel="manifest" href="{$home}manifest.json">
@@ -15,7 +15,7 @@
 <link rel='stylesheet' href='{$home}assetsPublic/dist/core.min.css?v={$version}'>
 <link rel='stylesheet' href='{$home}assetsPublic/dist/fonts.min.css?v={$version}' type='text/css' media='all'/>
 
-<style type="text/css" id="app-style"></style>
+<style type="text/css" id="single-style"></style>
 <script>
     const HOME = '{$home}';
     const DOMINIO = '{$dominio}';

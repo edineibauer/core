@@ -1,11 +1,11 @@
-    <div class="col padding-medium theme color-grayscale-min" id="main-header-app-sidebar">
+    <div class="col padding-medium theme color-grayscale-min" id="main-header-single-sidebar">
         <div class="col padding-medium perfil-sidebar">
             {if $loged}
                 {if $login.imagem}
                     <img src="{$home}image/{$login.imagem}&h=100&w=100" height="80" width="80"
-                         class="radius-circle margin-bottom z-depth-2" id="app-sidebar-img-perfil">
+                         class="radius-circle margin-bottom z-depth-2" id="single-sidebar-img-perfil">
                 {else}
-                    <div id="app-sidebar-img-perfil" class="col s4"><i class="material-icons font-jumbo">people</i></div>
+                    <div id="single-sidebar-img-perfil" class="col s4"><i class="material-icons font-jumbo">people</i></div>
                 {/if}
                 <div class="col font-large font-bold">
                     {$login.nome}
@@ -21,15 +21,15 @@
                     </button>
                 </div>
             {else}
-                <i id="app-sidebar-img-perfil" class="material-icons font-jumbo margin-bottom">people</i>
-                <div class="app-sidebar-name">
+                <i id="single-sidebar-img-perfil" class="material-icons font-jumbo margin-bottom">people</i>
+                <div id="single-sidebar-name">
                     Anônimo
                 </div>
             {/if}
         </div>
     </div>
 
-    <div class="col" id="main-app-sidebar">
+    <div class="col" id="main-single-sidebar">
         <ul class="col" id="applications"></ul>
         {* <ul class="col border-bottom padding-bottom" id="actions">
              <li class="col pointer color-hover-grey-light">
