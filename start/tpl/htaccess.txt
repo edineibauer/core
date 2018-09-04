@@ -1,7 +1,7 @@
 RewriteEngine On
 {$dados}
 
-RewriteRule ^image\/(.*)$ tim.php?src=http://%1/$1 [L]
+RewriteRule ^image\/(.*)$ tim.php?src=$1 [L]
 RewriteRule ^get\/(.*)$ get.php?data=$1 [L]
 RewriteRule ^set\/(.*)$ set.php?data=$1 [L]
 
