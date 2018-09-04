@@ -5,14 +5,14 @@
     "boot",
     "panel",
     "mustache",
-    "app"
+    "single"
   ],
   "css": [
     "normalize",
     "cssIcon",
     "theme",
     "panel",
-    "app"
+    "single"
   ],
   "font": [
     "roboto"
