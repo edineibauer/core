@@ -78,9 +78,8 @@ class Link
      */
     private function createParam(array $f, string $file)
     {
-        $this->createCoreJs($f['js'], 'dist/route/' . $file);
-        $this->createCoreCss($f['css'], 'dist/route/' . $file);
-        $this->createCoreFont($f['font'], $f['icon'], 'dist/route/' . $file);
+        $this->createCoreJs($f['js'] ?? [], 'dist/route/' . $file);
+        $this->createCoreCss($f, 'dist/route/' . $file);
     }
 
     /**
@@ -92,9 +91,8 @@ class Link
         if (file_exists(PATH_HOME . "_config/param.json"))
             $f = json_decode(file_get_contents(PATH_HOME . "_config/param.json"), true);
 
-        $this->createCoreJs($f['js'], 'dist/core');
-        $this->createCoreCss($f['css'], 'dist/core');
-        $this->createCoreFont($f['font'], $f['icon'], 'dist/fonts');
+        $this->createCoreJs($f['js'] ?? []);
+        $this->createCoreCss($f);
     }
 
     /**
@@ -157,10 +155,10 @@ class Link
     }
 
     /**
-     * @param array $jsList
+     * @param array|null $jsList
      * @param string $name
      */
-    private function createCoreJs(array $jsList, string $name = "core")
+    private function createCoreJs(array $jsList = null, string $name = "dist/core")
     {
         if (PRODUCAO && file_exists(PATH_HOME . "assetsPublic/{$name}.min.js")) {
             $this->param['js'] = [HOME . "assetsPublic/{$name}.min.js"];
@@ -174,60 +172,54 @@ class Link
                     $minifier->add($js);
             }
 
-            $minifier->minify(PATH_HOME . "assetsPublic/{$name}.min.js");
             $this->param['js'] = [HOME . "assetsPublic/{$name}.min.js"];
+            $f = fopen(PATH_HOME . "assetsPublic/{$name}.min.js", "w+");
+            fwrite($f, $this->param['js']);
+            fclose($f);
         }
     }
 
     /**
-     * @param array $cssList
+     * @param array $f
      * @param string $name
      */
-    private function createCoreCss(array $cssList, string $name = "core")
+    private function createCoreCss(array $f, string $name = "dist/core")
     {
         if (PRODUCAO && file_exists(PATH_HOME . "assetsPublic/{$name}.min.css")) {
             $this->param['css'] = file_get_contents(PATH_HOME . "assetsPublic/{$name}.min.css");
 
-        } elseif (!empty($cssList)) {
-            $minifier = new Minify\CSS("");
-            $minifier->setMaxImportSize(30);
+        } else {
+            if(!empty($f['css']) || !empty($f['font']) || !empty($f['icon'])) {
+                $minifier = new Minify\CSS("");
 
-            foreach ($cssList as $css) {
-                if (!preg_match('/\//i', $css))
-                    $minifier->add(PATH_HOME . $this->checkAssetsExist($css, "css"));
-                else
-                    $minifier->add($css);
+                if (!empty($f['css'])) {
+                    foreach ($f['css'] as $css) {
+                        if (!preg_match('/\//i', $css))
+                            $minifier->add(PATH_HOME . $this->checkAssetsExist($css, "css"));
+                        else
+                            $minifier->add($css);
+                    }
+                }
+                if (!empty($f['font'])) {
+                    foreach ($f['font'] as $item)
+                        $minifier->add($this->getFontIcon($item, "font"));
+                }
+                if (!empty($f['icon'])) {
+                    foreach ($f['icon'] as $item)
+                        $minifier->add($this->getFontIcon($item, "icon"));
+                }
+
+                $this->param['css'] = $minifier->minify();
+                $f = fopen(PATH_HOME . "assetsPublic/{$name}.min.css", "w+");
+                fwrite($f, $this->param['css']);
+                fclose($f);
+
+            } else {
+                $f = fopen(PATH_HOME . "assetsPublic/{$name}.min.css", "w+");
+                fwrite($f, "");
+                fclose($f);
+                $this->param['css'] = "";
             }
-
-            $minifier->minify(PATH_HOME . "assetsPublic/{$name}.min.css");
-            $this->param['css'] = $minifier->minify();
-        }
-    }
-
-    /**
-     * @param $fontList
-     * @param null $iconList
-     * @param string $name
-     */
-    private function createCoreFont($fontList, $iconList = null, string $name = 'fonts')
-    {
-        if (PRODUCAO && file_exists(PATH_HOME . "assetsPublic/{$name}.min.css")) {
-            $this->param['css'] .= file_get_contents(PATH_HOME . "assetsPublic/{$name}.min.css");
-
-        } elseif ((!empty($fontList) || !empty($iconList))) {
-            $fonts = "";
-            if (!empty($fontList)) {
-                foreach ($fontList as $item)
-                    $fonts .= $this->getFontIcon($item, "font");
-            }
-            if (!empty($iconList)) {
-                foreach ($iconList as $item)
-                    $fonts .= $this->getFontIcon($item, "icon");
-            }
-
-            $m = new Minify\CSS($fonts);
-            $m->minify(PATH_HOME . "assetsPublic/{$name}.min.css");
-            $this->param['css'] .= $m->minify();
         }
     }
 
@@ -280,7 +272,7 @@ class Link
             $routes = count($urlRoute);
 
             foreach ($urlRoute as $e => $u)
-                $basePath[$e] = $basePath[$e-1] . $u . '/';
+                $basePath[$e] = $basePath[$e - 1] . $u . '/';
 
             $basePath = array_reverse($basePath);
 
@@ -288,8 +280,8 @@ class Link
                 if ($i > 0) {
                     $url = explode(')', $u)[0];
                     if (!file_exists(PATH_HOME . "assetsPublic/fonts/" . pathinfo($url, PATHINFO_BASENAME))) {
-                        if(preg_match('/^..\//i', $url)) {
-                            $back = count(explode('../', $url)) -1;
+                        if (preg_match('/^..\//i', $url)) {
+                            $back = count(explode('../', $url)) - 1;
                             $urlAcesso = $basePath[$back] . str_replace("../", '', $url);
                         } else {
                             $urlAcesso = $url;
