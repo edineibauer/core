@@ -172,10 +172,10 @@ class Link
                     $minifier->add($js);
             }
 
-            $this->param['js'] = [HOME . "assetsPublic/{$name}.min.js"];
             $f = fopen(PATH_HOME . "assetsPublic/{$name}.min.js", "w+");
-            fwrite($f, $this->param['js']);
+            fwrite($f, $minifier->minify());
             fclose($f);
+            $this->param['js'] = [HOME . "assetsPublic/{$name}.min.js"];
         }
     }
 
