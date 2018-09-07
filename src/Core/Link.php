@@ -211,7 +211,10 @@ class Link
      */
     private function createCoreFont($fontList, $iconList = null, string $name = 'fonts')
     {
-        if ((!empty($fontList) || !empty($iconList)) && !file_exists(PATH_HOME . "assetsPublic/{$name}.min.css")) {
+        if (PRODUCAO && file_exists(PATH_HOME . "assetsPublic/{$name}.min.css")) {
+            $this->param['css'] .= file_get_contents(PATH_HOME . "assetsPublic/{$name}.min.css");
+
+        } elseif ((!empty($fontList) || !empty($iconList))) {
             $fonts = "";
             if (!empty($fontList)) {
                 foreach ($fontList as $item)
@@ -265,17 +268,37 @@ class Link
     private function getFontIcon(string $item, string $tipo): string
     {
         $data = "";
-        $urlOnline = $tipo === "font" ? "https://fonts.googleapis.com/css?family=" . ucfirst($item) . ":100,300,400,700" : "https://fonts.googleapis.com/icon?family=" . ucfirst($item) . "+Icons";
+        $urlOnline = preg_match('/^http/i', $item) ? $item : ($tipo === "font" ? "https://fonts.googleapis.com/css?family=" . ucfirst($item) . ":100,300,400,700" : "https://fonts.googleapis.com/icon?family=" . ucfirst($item) . "+Icons");
+
         if (Validate::online($urlOnline)) {
             $data = file_get_contents($urlOnline);
+
+            $partUrl = explode('/', $item);
+            $basePath[-1] = $partUrl[0] . '/' . $partUrl[1] . '/' . $partUrl[2] . '/';
+            $urlRoute = explode('/', str_replace($basePath[-1], '', $item));
+            array_pop($urlRoute);
+            $routes = count($urlRoute);
+
+            foreach ($urlRoute as $e => $u)
+                $basePath[$e] = $basePath[$e-1] . $u . '/';
+
+            $basePath = array_reverse($basePath);
+
             foreach (explode('url(', $data) as $i => $u) {
                 if ($i > 0) {
                     $url = explode(')', $u)[0];
                     if (!file_exists(PATH_HOME . "assetsPublic/fonts/" . pathinfo($url, PATHINFO_BASENAME))) {
-                        if (Validate::online($url)) {
+                        if(preg_match('/^..\//i', $url)) {
+                            $back = count(explode('../', $url)) -1;
+                            $urlAcesso = $basePath[$back] . str_replace("../", '', $url);
+                        } else {
+                            $urlAcesso = $url;
+                        }
+
+                        if (Validate::online($urlAcesso)) {
                             Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/fonts");
                             $f = fopen(PATH_HOME . "assetsPublic/fonts/" . pathinfo($url, PATHINFO_BASENAME), "w+");
-                            fwrite($f, file_get_contents($url));
+                            fwrite($f, file_get_contents($urlAcesso));
                             fclose($f);
                             $data = str_replace($url, HOME . "assetsPublic/fonts/" . pathinfo($url, PATHINFO_BASENAME), $data);
                         } else {
@@ -324,7 +347,7 @@ class Link
      */
     private function preperaCss(string $url, string $lib)
     {
-        if (!in_array($lib, ["single", "normalize", "panel", "theme", "boot"])) {
+        if (!in_array($lib, ["app", "normalize", "panel", "theme", "boot"])) {
             $m = new Minify\CSS(file_get_contents($url));
             $content = $m->minify();
             $tags = ['nav', 'section', 'aside', 'ul', 'li', 'img', 'i'];
@@ -335,7 +358,7 @@ class Link
                 $c = "}";
                 if (preg_match('/}/i', $e)) {
                     $item = explode('}', $e);
-                    $item = trim($item[count($item) -1]);
+                    $item = trim($item[count($item) - 1]);
                 } else {
                     $item = trim($e);
                     $c = "";
@@ -351,7 +374,7 @@ class Link
                             elseif (trim($it) === 'body')
                                 $t[$l] = "#single-content";
                             elseif (preg_match("/^body(:|\s)/i", trim($it)))
-                                $t[$l] = preg_replace("/^(html|body)(:|\s)/",'#single-content\1', trim($it));
+                                $t[$l] = preg_replace("/^(html|body)(:|\s)/", '#single-content\1', trim($it));
                         }
                     }
                     $base = implode(',', array_filter($t));
