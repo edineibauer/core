@@ -34,6 +34,7 @@ function getServerConstants(array $dados)
     $localhost = ($_SERVER['SERVER_NAME'] === "localhost" ? true : false);
 
     $dados['sitesub'] = "";
+    $dados['lang'] = "pt-BR";
     $dados['producao'] = false;
     $dados['dominio'] = ($localhost ? "localhost" . (in_array($_SERVER['SERVER_PORT'], ["80", "8080"]) ? explode('/', $_SERVER['REQUEST_URI'])[1] : $localhost ? ":{$_SERVER['SERVER_PORT']}" : "") : $_SERVER['SERVER_NAME']);
     $dados['ssl'] = isset($dados['protocol']) && $dados['protocol'];
@@ -151,6 +152,7 @@ if (!empty($dados['sitename']) && !empty($_FILES['favicon']['name'])) {
     createDir("_config");
     createDir("_cdn");
     createDir("_cdn/store");
+    createDir("lang");
 
     uploadFiles();
     createConfig($dados);
@@ -169,6 +171,7 @@ if (!empty($dados['sitename']) && !empty($_FILES['favicon']['name'])) {
     writeFile("_cdn/.htaccess", "Deny from all");
     writeFile("_cdn/store/.htaccess", "Deny from all");
     writeFile("entity/.htaccess", "Deny from all");
+    writeFile("lang/.htaccess", "Deny from all");
     writeFile("vendor/.htaccess", getAccessFile());
 
     createHtaccess($dados, $dados['dominio'], $dados['www'], $dados['ssl']);
