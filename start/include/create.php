@@ -35,6 +35,7 @@ function getServerConstants(array $dados)
 
     $dados['sitesub'] = "";
     $dados['lang'] = "pt-BR";
+    $dados['backup'] = 2;
     $dados['producao'] = false;
     $dados['dominio'] = ($localhost ? "localhost" . (in_array($_SERVER['SERVER_PORT'], ["80", "8080"]) ? explode('/', $_SERVER['REQUEST_URI'])[1] : $localhost ? ":{$_SERVER['SERVER_PORT']}" : "") : $_SERVER['SERVER_NAME']);
     $dados['ssl'] = isset($dados['protocol']) && $dados['protocol'];

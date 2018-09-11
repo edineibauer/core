@@ -3,6 +3,7 @@
 namespace Core;
 
 use EntityForm\Dicionario;
+use Helper\Convert;
 use \ReCaptcha\ReCaptcha;
 
 class Login
@@ -52,7 +53,7 @@ class Login
     public function setSenha($senha)
     {
         if (!empty($senha) && strlen($senha) > 3)
-            $this->senha = (string)Check::password(trim($senha));
+            $this->senha = (string)Convert::password(trim($senha));
         else
             $this->setResult('Senha muito Curta');
 
