@@ -9,6 +9,8 @@
 namespace Core;
 
 use MatthiasMullie\Minify;
+use Helper\Helper;
+use Helper\Validate;
 
 class Link
 {

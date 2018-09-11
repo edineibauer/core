@@ -8,6 +8,8 @@
 
 namespace Core;
 
+use Helper\Validate;
+
 class Route
 {
     private $route;
