@@ -167,6 +167,7 @@ if (!empty($dados['sitename']) && !empty($_FILES['favicon']['name'])) {
     writeFile("tim.php", file_get_contents("start/tpl/tim.txt"));
     writeFile("_config/entity_not_show.json", '{"1":[],"2":[],"3":[],"0":[]}');
     writeFile("_config/menu_not_show.json", '{"1":[],"2":[],"3":[],"0":[]}');
+    writeFile("_config/routes-front-libs.json", file_get_contents("start/tpl/routes-front-libs.txt"));
     writeFile("entity/general/general_info.json", "[]");
     writeFile("_config/.htaccess", "Deny from all");
     writeFile("_cdn/.htaccess", "Deny from all");
