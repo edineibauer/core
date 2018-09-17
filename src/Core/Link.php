@@ -28,7 +28,7 @@ class Link
     function __construct(string $lib, string $file, $var = null)
     {
         $this->dicionario = null;
-        $this->devLibrary = "http://dev.ontab.com.br";
+        $this->devLibrary = "http://uebster.com/library";
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic");
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/dist");
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/dist/route");
