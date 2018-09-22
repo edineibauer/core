@@ -52,6 +52,20 @@ class Sessao
         return $this->mensagem;
     }
 
+    private function start()
+    {
+        if ($this->email && $this->senha && !$this->attemptExceded()) {
+            if (LOGGED)
+                $this->setResult('Você já esta logado.');
+            elseif ($this->isHuman())
+                $this->checkUserInfo();
+
+        } elseif ($this->email && $this->senha) {
+            $cont = 10 - $this->attempts;
+            $this->setResult($cont > 0 ? "{$cont} tentativas faltantes" : " bloqueado por 15 minutos");
+        }
+    }
+
     private function isLoggedIn()
     {
         return isset($_SESSION['userlogin']);

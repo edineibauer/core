@@ -3,7 +3,6 @@ ob_start();
 require_once './_config/config.php';
 require_once './vendor/autoload.php';
 
-use Core\Sessao;
 use Core\Route;
 use Core\Check;
 
@@ -17,7 +16,7 @@ use Core\Check;
 
 $file = filter_input(INPUT_POST, 'file', FILTER_DEFAULT);
 $lib = filter_input(INPUT_POST, 'lib', FILTER_DEFAULT);
-$data = ["response" => 1, "error" => "", "data" => ""];
+$data = ["response" => 2, "error" => "", "data" => ""];
 
 if (empty($file) && empty($lib)) {
     $url = strip_tags(trim($_GET['data']));
@@ -29,15 +28,34 @@ if (empty($file) && empty($lib)) {
 }
 
 if (isset($include)) {
-    new Sessao();
-    if (Check::ajax()) {
-        include_once $include;
+    if (\Helper\Validate::ajax()) {
 
-        if (!isset($data) || !isset($data['response']) || !in_array($data['response'], [1, 2, 3, 4]))
-            $data = ["response" => 2, "error" => "data retornada não formatada corretamente", "data" => ""];
-        elseif ($data['response'] === 3 && (!is_string($data['data']) || !preg_match("/^" . HOME . "/i", $data['data'])))
-            $data = ["response" => 2, "error" => "url de redirecionamento não encontrada, precisa começar com " . HOME, "data" => ""];
+        ob_start();
+        try {
+            include_once $include;
 
+            if (!empty($data['error'])) {
+                $data["response"] = 2;
+                $data["data"] = "";
+            } else {
+                if (!isset($data['data']))
+                    $data = ["response" => 1, "error" => "", "data" => ob_get_contents()];
+
+                if (preg_match('/^http/i', $data['data']))
+                    $data["response"] = 3;
+
+                if (!isset($data['response']))
+                    $data['response'] = 1;
+
+                if ($data['response'] === 3 && (!is_string($data['data']) || !preg_match("/^http/i", $data['data'])))
+                    $data = ["response" => 2, "error" => "url de redirecionamento não é válido", "data" => ""];
+
+                var_dump($data);
+            }
+        } catch (Exception $e) {
+            $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
+        }
+        ob_end_clean();
     } else {
         $data = ["response" => 2, "error" => "request nao permitido", "data" => ""];
     }
