@@ -6,9 +6,7 @@ require_once './vendor/autoload.php';
 use Core\Template;
 use Core\Link;
 use Core\Route;
-use Core\Sessao;
 
-new Sessao();
 $route = new Route();
 $link = new Link($route->getLib(), $route->getFile(), $route->getVar());
 

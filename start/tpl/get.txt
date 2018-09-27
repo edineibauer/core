@@ -18,7 +18,6 @@ use Core\Link;
 
 $url = strip_tags(trim($_GET['data']));
 if (!empty($url)) {
-    new Sessao();
     $route = new Route($url);
 
     if ($route->getRoute()) {
